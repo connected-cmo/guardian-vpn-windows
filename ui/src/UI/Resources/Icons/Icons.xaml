@@ -40,6 +40,11 @@
     <system:String x:Key="tray-on-error">pack://application:,,,/UI/Resources/Icons/Tray/tray-on-error.svg</system:String>
     <system:String x:Key="tray-on-unstable">pack://application:,,,/UI/Resources/Icons/Tray/tray-on-unstable.svg</system:String>
     <system:String x:Key="tray-on">pack://application:,,,/UI/Resources/Icons/Tray/tray-on.svg</system:String>
+    <!-- Window Icons -->
+    <system:String x:Key="window-close-white">pack://application:,,,/UI/Resources/Icons/Window/window-close-white.svg</system:String>
+    <system:String x:Key="window-close">pack://application:,,,/UI/Resources/Icons/Window/window-close.svg</system:String>
+    <system:String x:Key="window-maximize">pack://application:,,,/UI/Resources/Icons/Window/window-maximize.svg</system:String>
+    <system:String x:Key="window-minimize">pack://application:,,,/UI/Resources/Icons/Window/window-minimize.svg</system:String>
     <!-- Illustration Icons -->
     <system:String x:Key="illu-beta-announcement">pack://application:,,,/UI/Resources/Icons/Illustration/illu-beta-announcement.svg</system:String>
     <system:String x:Key="illu-connection">pack://application:,,,/UI/Resources/Icons/Illustration/illu-connection.svg</system:String>

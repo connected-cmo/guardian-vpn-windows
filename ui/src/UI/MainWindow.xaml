@@ -3,10 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:uc="clr-namespace:FirefoxPrivateNetwork.UI.Components"
         mc:Ignorable="d"
-        Title="Firefox Private Network VPN" 
+        Title="Firefox Private Network" 
         Height="491" Width="375" MinHeight="491" MinWidth="375"
         Background="{StaticResource 'Grey/Grey 5'}"
+        WindowStyle="SingleBorderWindow"
         Closed="Window_Closed" Closing="Window_Closing" Initialized="Window_Initialized" SizeChanged="Window_SizeChanged">
     
     <Window.Resources>
@@ -27,42 +29,64 @@
         </Style>
     </Window.Resources>
 
-    <Grid HorizontalAlignment="Stretch" Height="Auto">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="360"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+    <!--
+    <Window.Style>
+        <Style>
+            <Setter Property="WindowChrome.WindowChrome">
+                <Setter.Value>
+                    <WindowChrome CaptionHeight="0" CornerRadius="2" GlassFrameThickness="0,0,0,1" NonClientFrameEdges="None" ResizeBorderThickness="3"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Style>
+    -->
+    
+    <WindowChrome.WindowChrome>
+        <WindowChrome GlassFrameThickness="0" CornerRadius="0" CaptionHeight="0" UseAeroCaptionButtons="False" ResizeBorderThickness="7"/>
+    </WindowChrome.WindowChrome>
 
-        <!-- Persistent toast display location -->
-        <Grid Grid.Row="0" Grid.Column="1">
-            <StackPanel x:Name="UpdateStackPanel"/>
-        </Grid>
-        
-        <!-- Left window decoration -->
-        <Grid Grid.Row="1" Grid.Column="0">
-            <Image Style="{StaticResource WindowDecorations}" x:Name="WindowLeftDecoration" Source="{Binding Source={StaticResource 'illu-window-left-decoration'}}" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
-            <Image Style="{StaticResource WindowDecorations}" x:Name="WindowLeftShadow" Source="{Binding Source={StaticResource 'illu-window-left-shadow'}}" HorizontalAlignment="Right" VerticalAlignment="Top"/>
-        </Grid>
+    <StackPanel>
+        <!-- Title bar -->
+        <uc:WindowTitleBar x:Name="MainWindowTitleBar" />
 
-        <!-- Page view frame -->
-        <Grid Grid.Row="1" Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Center" ClipToBounds="True">
-            <Grid x:Name="Viewer" VerticalAlignment="Top" ClipToBounds="True">
-                <Grid.RenderTransform>
-                    <TranslateTransform />
-                </Grid.RenderTransform>
-                <Frame x:Name="ViewFrame" NavigationUIVisibility="Hidden" ContentRendered="ViewFrame_ContentRendered" />
+        <!-- Window content -->
+        <Grid HorizontalAlignment="Stretch" Height="Auto">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="360"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Persistent toast display location -->
+            <Grid Grid.Row="0" Grid.Column="1">
+                <StackPanel x:Name="UpdateStackPanel"/>
+            </Grid>
+
+            <!-- Left window decoration -->
+            <Grid Grid.Row="1" Grid.Column="0">
+                <Image Style="{StaticResource WindowDecorations}" x:Name="WindowLeftDecoration" Source="{Binding Source={StaticResource 'illu-window-left-decoration'}}" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+                <Image Style="{StaticResource WindowDecorations}" x:Name="WindowLeftShadow" Source="{Binding Source={StaticResource 'illu-window-left-shadow'}}" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+            </Grid>
+
+            <!-- Page view frame -->
+            <Grid Grid.Row="1" Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Center" ClipToBounds="True">
+                <Grid x:Name="Viewer" VerticalAlignment="Top" ClipToBounds="True">
+                    <Grid.RenderTransform>
+                        <TranslateTransform />
+                    </Grid.RenderTransform>
+                    <Frame x:Name="ViewFrame" NavigationUIVisibility="Hidden" ContentRendered="ViewFrame_ContentRendered" />
+                </Grid>
+            </Grid>
+
+            <!-- Right window decoration -->
+            <Grid Grid.Row="1" Grid.Column="2">
+                <Image Style="{StaticResource WindowDecorations}" x:Name="WindowRightShadow" Source="{Binding Source={StaticResource 'illu-window-right-shadow'}}" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                <Image Style="{StaticResource WindowDecorations}" x:Name="WindowRightDecoration" Source="{Binding Source={StaticResource 'illu-window-right-decoration'}}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
             </Grid>
         </Grid>
-
-        <!-- Right window decoration -->
-        <Grid Grid.Row="1" Grid.Column="2">
-            <Image Style="{StaticResource WindowDecorations}" x:Name="WindowRightShadow" Source="{Binding Source={StaticResource 'illu-window-right-shadow'}}" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Image Style="{StaticResource WindowDecorations}" x:Name="WindowRightDecoration" Source="{Binding Source={StaticResource 'illu-window-right-decoration'}}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
-        </Grid>
-    </Grid>
+    </StackPanel>
 </Window>
