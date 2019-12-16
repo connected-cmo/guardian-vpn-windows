@@ -160,7 +160,8 @@ namespace FirefoxPrivateNetwork.UIUpdaters
             // Make sure to try and detect captive portals if unstable/no signal
             if (stability == Models.ConnectionStability.NoSignal || stability == Models.ConnectionStability.Unstable)
             {
-                if (!Manager.CaptivePortalDetector.CaptivePortalDetected)
+                // Attempt to check for a captive portal if the settings option is enabled and captive portal has not already been detected for the current network address
+                if (Manager.Settings.Network.CaptivePortalAlert && !Manager.CaptivePortalDetector.CaptivePortalDetected)
                 {
                     var ipcDetectCaptivePortalMsg = new IPCMessage(IPCCommand.IpcDetectCaptivePortal);
                     var brokerIPC = Manager.Broker.GetBrokerIPC();

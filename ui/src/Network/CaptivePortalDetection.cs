@@ -25,6 +25,7 @@ namespace FirefoxPrivateNetwork.Network
         /// </summary>
         public CaptivePortalDetection()
         {
+            // Add an event handler to reset the captive portal detection check when a network change is detected
             NetworkChange.NetworkAddressChanged += new NetworkAddressChangedEventHandler((sender, e) =>
             {
                 Task.Delay(System.TimeSpan.FromSeconds(5)).ContinueWith(task => { CaptivePortalDetected = false; });
@@ -67,7 +68,12 @@ namespace FirefoxPrivateNetwork.Network
                 captivePortalDetected = value;
                 if (value)
                 {
-                    Manager.TrayIcon.ShowNotification("Captive portal detected", "Bruh", NotificationArea.ToastIconType.Disconnected);
+                    // Send a windows notification if captive portal is detected.
+                    Manager.TrayIcon.ShowNotification(
+                        Manager.TranslationService.GetString("windows-notification-captive-portal-title"),
+                        Manager.TranslationService.GetString("windows-notification-captive-portal-content"),
+                        NotificationArea.ToastIconType.Disconnected
+                    );
                 }
             }
         }
