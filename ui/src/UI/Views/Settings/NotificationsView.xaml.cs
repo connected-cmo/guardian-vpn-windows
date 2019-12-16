@@ -67,7 +67,7 @@ namespace FirefoxPrivateNetwork.UI
         {
             CheckBox captivePortalAlertCheckBox = sender as CheckBox;
 
-            // Save the new Unsecured Network Alert settings
+            // Save the new Captive Portal Alert settings
             var networkSettings = Manager.Settings.Network;
             networkSettings.CaptivePortalAlert = captivePortalAlertCheckBox.IsChecked ?? false;
             Manager.Settings.Network = networkSettings;

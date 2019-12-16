@@ -63,7 +63,7 @@ settings-local-device-access-content = Zugriff auf Drucker, Streaming und alle a
 settings-local-device-access-checked-disabled-message = VPN muss vor der Deaktivierung ausgeschaltet werden
 settings-local-device-access-unchecked-disabled-message = VPN muss vor der Aktivierung ausgeschaltet werden
 settings-captive-portal-title = Guest Wi-Fi portal alert
-settings-captive-portal-content = Get notified if a guest Wi-Fi portal  is blocked due to VPN connection
+settings-captive-portal-content = Get notified if a guest Wi-Fi portal is blocked due to VPN connection
 
 ## About
 about-version-title = Version
