@@ -4,5 +4,5 @@
 
     <system:String x:Key="ripple">pack://application:,,,/UI/Resources/Animations/Lottie/ripple.json</system:String>
     <system:String x:Key="globe">pack://application:,,,/UI/Resources/Animations/Lottie/globe.json</system:String>
-
+    
 </ResourceDictionary>
