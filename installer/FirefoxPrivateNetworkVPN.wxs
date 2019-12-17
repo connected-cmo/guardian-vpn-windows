@@ -64,6 +64,11 @@
 				</Directory>
 			</Directory>
 			<Directory Id="ProgramMenuFolder" />
+			<Directory Id="LocalAppDataFolder" Name="AppDataFolder">
+				<Directory Id="MozillaAppDataFolder" Name="Mozilla">
+					<Directory Id="FirefoxPrivateNetworkVPNAppDataFolder" Name="FirefoxPrivateNetworkVPN" />
+				</Directory>
+			</Directory>
 		</Directory>
 
 		<!--
@@ -82,6 +87,17 @@
 
 				<ServiceControl Id="FirefoxPrivateNetworkVPNService" Remove="both" Name="WireGuardTunnel$FirefoxPrivateNetworkVPN" Stop="both" Wait="yes" />
 			</Component>
+
+			<Component Directory="FirefoxPrivateNetworkVPNAppDataFolder" Id="FirefoxPrivateNetworkVPNAppDataCleanup" Guid="4ed6a4ff-8fd6-4f6e-9893-eacbcd800169">
+              <RegistryValue Root="HKCU" Key="Software\Mozilla\FirefoxPrivateNetworkVPN" Type="string" Value="" KeyPath="yes" />				
+              <RemoveFile Id="EmptyFirefoxPrivateNetworkVPNAppDataFolder" Name="*.*" On="uninstall" />
+              <RemoveFolder Id='FirefoxPrivateNetworkVPNAppDataFolder' On='uninstall' />			
+        	</Component>
+
+        	<Component Directory="MozillaAppDataFolder" Id="MozillaAppDataCleanup" Guid="8f12e99b-e97b-4e56-9a02-4b9e6a15ddc1">
+              <RegistryValue Root="HKCU" Key="Software\Mozilla" Type="string" Value="" KeyPath="yes" />				
+              <RemoveFolder Id='MozillaAppDataFolder' On='uninstall' />			
+        	</Component>
 		</ComponentGroup>
 
 		<!--
