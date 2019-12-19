@@ -42,8 +42,8 @@
 
                             <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:HeroImage}}, Path=(extension:CardExtensions.VpnStatus)}" Value="3">
                                 <Setter TargetName="OnImage" Property="Visibility" Value="Collapsed" />
-                                <Setter TargetName="OffImage" Property="Visibility" Value="Collapsed" />
-                                <Setter TargetName="LoadingImage" Property="Visibility" Value="Visible" />
+                                <Setter TargetName="OffImage" Property="Visibility" Value="Visible" />
+                                <Setter TargetName="LoadingImage" Property="Visibility" Value="Collapsed" />
                             </DataTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>

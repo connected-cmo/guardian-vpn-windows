@@ -25,13 +25,14 @@ namespace FirefoxPrivateNetwork.UI.Components
         /// <summary>
         /// Indicates that the VPN status is not unprotected, triggering the card background to change.
         /// </summary>
-        public static readonly DependencyProperty ActiveProperty = DependencyProperty.Register("Active", typeof(bool), typeof(Card), new PropertyMetadata(OnActiveChangedCallBack));
+        public static readonly DependencyProperty StatusProperty = DependencyProperty.Register("Status", typeof(Models.ConnectionState), typeof(Card), new PropertyMetadata(OnStatusChangedCallBack));
 
         /// <summary>
         /// Indicates that the VPN status is protected, trigger the ripple animation to start.
         /// </summary>
         public static readonly DependencyProperty AnimateRippleProperty = DependencyProperty.Register("AnimateRipple", typeof(bool), typeof(Card), new PropertyMetadata(OnAnimateRippleChangedCallBack));
 
+        private bool active = false;
         private LottieAnimationView rippleAnimation = null;
 
         /// <summary>
@@ -39,8 +40,8 @@ namespace FirefoxPrivateNetwork.UI.Components
         /// </summary>
         public Card()
         {
-            ConstructRippleAnimation();
             InitializeComponent();
+            ConstructRippleAnimation();
         }
 
         /// <inheritdoc/>
@@ -49,17 +50,17 @@ namespace FirefoxPrivateNetwork.UI.Components
         /// <summary>
         /// Gets or sets a value indicating whether the VPN status is not unprotected, triggering the card background to change.
         /// </summary>
-        public bool Active
+        public Models.ConnectionState Status
         {
             get
             {
-                return (bool)GetValue(ActiveProperty);
+                return (Models.ConnectionState)GetValue(StatusProperty);
             }
 
             set
             {
-                SetValue(ActiveProperty, value);
-                OnPropertyChanged("Active");
+                SetValue(StatusProperty, value);
+                OnPropertyChanged("Status");
             }
         }
 
@@ -98,18 +99,18 @@ namespace FirefoxPrivateNetwork.UI.Components
                 SetRippleAnimation();
             }
 
-            if (propertyName == "Active")
+            if (propertyName == "Status")
             {
                 SetCardUI();
             }
         }
 
-        private static void OnActiveChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        private static void OnStatusChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
             Card c = sender as Card;
             if (c != null)
             {
-                c.OnPropertyChanged("Active");
+                c.OnPropertyChanged("Status");
             }
         }
 
@@ -163,6 +164,8 @@ namespace FirefoxPrivateNetwork.UI.Components
             {
                 ErrorHandling.ErrorHandler.WriteToLog("Failed to construct Lottie animation.", ErrorHandling.LogLevel.Error);
             }
+
+            CardBorder.Child = rippleAnimation;
         }
 
         private void StartRippleAnimation()
@@ -172,7 +175,6 @@ namespace FirefoxPrivateNetwork.UI.Components
                 return;
             }
 
-            CardBorder.Child = rippleAnimation;
             rippleAnimation.Visibility = Visibility.Visible;
             rippleAnimation.PlayAnimation();
         }
@@ -184,31 +186,47 @@ namespace FirefoxPrivateNetwork.UI.Components
                 return;
             }
 
-            CardBorder.Child = null;
             rippleAnimation.Visibility = Visibility.Hidden;
             rippleAnimation.PauseAnimation();
         }
 
         private void SetCardUI()
         {
-            if (Active)
+            switch (Status)
             {
-                AnimateActive();
-            }
-            else
-            {
-                AnimateInactive();
+                case Models.ConnectionState.Connecting:
+                    AnimateActive();
+                    break;
+                case Models.ConnectionState.Protected:
+                    AnimateActive();
+                    break;
+                case Models.ConnectionState.Disconnecting:
+                    AnimateInactive();
+                    break;
+                case Models.ConnectionState.Unprotected:
+                    AnimateInactive();
+                    break;
+                default:
+                    break;
             }
         }
 
         private void AnimateActive()
         {
-            CardBorder.BeginStoryboard(this.FindResource("MakeActive") as Storyboard);
+            if (!active)
+            {
+                CardBorder.BeginStoryboard(this.FindResource("MakeActive") as Storyboard);
+                active = true;
+            }
         }
 
         private void AnimateInactive()
         {
-            CardBorder.BeginStoryboard(this.FindResource("MakeInactive") as Storyboard);
+            if (active)
+            {
+                CardBorder.BeginStoryboard(this.FindResource("MakeInactive") as Storyboard);
+                active = false;
+            }
         }
     }
 }
