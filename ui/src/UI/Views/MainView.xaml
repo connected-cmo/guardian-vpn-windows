@@ -80,7 +80,7 @@
 
                 <!-- VPN status animation -->
                 <Grid HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="1" Grid.Column="0">
-                    <uc:HeroAnimation IsHitTestVisible="False" Status="{Binding ElementName=Toggle, Path=Status, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <uc:HeroImage Width="80" Height="80" IsHitTestVisible="False" local:CardExtensions.VpnStatus="{Binding ElementName=Toggle, Path=Status, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>                
                 </Grid>
 
                 <!-- VPN status text -->

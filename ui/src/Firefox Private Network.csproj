@@ -344,9 +344,6 @@
     <Compile Include="UIUpdaters\ToastManager\ToastCollection.cs" />
     <Compile Include="UI\Components\Converters\EqualityConverter.cs" />
     <Compile Include="UI\Components\Converters\StringEmptyConverter.cs" />
-    <Compile Include="UI\Components\Card\Hero\HeroAnimation.xaml.cs">
-      <DependentUpon>HeroAnimation.xaml</DependentUpon>
-    </Compile>
     <Compile Include="UI\Views\Settings\NotificationsView.xaml.cs">
       <DependentUpon>NotificationsView.xaml</DependentUpon>
     </Compile>
@@ -528,10 +525,6 @@
     <Compile Include="NotificationArea\Tray.cs" />
     <Compile Include="ProductConstants.cs" />
     <Page Include="UI\Components\Dev.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI\Components\Card\Hero\HeroAnimation.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

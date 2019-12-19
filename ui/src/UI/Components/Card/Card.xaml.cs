@@ -40,8 +40,8 @@ namespace FirefoxPrivateNetwork.UI.Components
         /// </summary>
         public Card()
         {
-            InitializeComponent();
             ConstructRippleAnimation();
+            InitializeComponent();
         }
 
         /// <inheritdoc/>
@@ -164,8 +164,6 @@ namespace FirefoxPrivateNetwork.UI.Components
             {
                 ErrorHandling.ErrorHandler.WriteToLog("Failed to construct Lottie animation.", ErrorHandling.LogLevel.Error);
             }
-
-            CardBorder.Child = rippleAnimation;
         }
 
         private void StartRippleAnimation()
@@ -175,6 +173,7 @@ namespace FirefoxPrivateNetwork.UI.Components
                 return;
             }
 
+            CardBorder.Child = rippleAnimation;
             rippleAnimation.Visibility = Visibility.Visible;
             rippleAnimation.PlayAnimation();
         }
@@ -186,6 +185,7 @@ namespace FirefoxPrivateNetwork.UI.Components
                 return;
             }
 
+            CardBorder.Child = null;
             rippleAnimation.Visibility = Visibility.Hidden;
             rippleAnimation.PauseAnimation();
         }
