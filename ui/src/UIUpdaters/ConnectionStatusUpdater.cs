@@ -79,6 +79,9 @@ namespace FirefoxPrivateNetwork.UIUpdaters
                 // Update tray
                 UpdateTrayUI(connectionStatus.Status, connectionStatus.ConnectionStability);
 
+                // Update network
+                UpdateNetworkUI(connectionStatus.Status, connectionStatus.ConnectionStability);
+
                 // Update connection timer
                 UpdateConnectionTimer();
 
@@ -149,32 +152,20 @@ namespace FirefoxPrivateNetwork.UIUpdaters
             }
         }
 
-        private void UpdateTrayUI(Models.ConnectionState status, Models.ConnectionStability stability)
+        private void UpdateTrayUI(Models.ConnectionState newStatus, Models.ConnectionStability newStability)
         {
-            if (status != Models.ConnectionState.Protected)
+            if (newStatus != Models.ConnectionState.Protected)
             {
                 Manager.TrayIcon.SetDisconnected();
                 return;
             }
 
-            // Make sure to try and detect captive portals if unstable/no signal
-            if (stability == Models.ConnectionStability.NoSignal || stability == Models.ConnectionStability.Unstable)
-            {
-                // Attempt to check for a captive portal if the settings option is enabled and captive portal has not already been detected for the current network address
-                if (Manager.Settings.Network.CaptivePortalAlert && !Manager.CaptivePortalDetector.CaptivePortalDetected)
-                {
-                    var ipcDetectCaptivePortalMsg = new IPCMessage(IPCCommand.IpcDetectCaptivePortal);
-                    var brokerIPC = Manager.Broker.GetBrokerIPC();
-                    brokerIPC.WriteToPipe(ipcDetectCaptivePortalMsg);
-                }
-            }
-
-            if (stability == Models.ConnectionStability.NoSignal)
+            if (newStability == Models.ConnectionStability.NoSignal)
             {
                 Manager.TrayIcon.SetUnstable();
                 return;
             }
-            else if (stability == Models.ConnectionStability.Unstable)
+            else if (newStability == Models.ConnectionStability.Unstable)
             {
                 Manager.TrayIcon.SetIdle();
                 return;
@@ -186,6 +177,38 @@ namespace FirefoxPrivateNetwork.UIUpdaters
         private void UpdateConnectionStabilityUI(Models.ConnectionStability newStability)
         {
             viewModel.Stability = newStability;
+        }
+
+        private void UpdateNetworkUI(Models.ConnectionState newStatus, Models.ConnectionStability newStability)
+        {
+            // Check for a captive portal if the settings option is enabled
+            if (Manager.Settings.Network.CaptivePortalAlert)
+            {
+                // Make sure to try and detect captive portals if connection stability is unstable/no signal
+                if (newStability == Models.ConnectionStability.NoSignal || newStability == Models.ConnectionStability.Unstable)
+                {
+                    // Initiate captive portal check if not already detected for the current network address
+                    if (!Manager.CaptivePortalDetector.CaptivePortalDetected)
+                    {
+                        var ipcDetectCaptivePortalMsg = new IPCMessage(IPCCommand.IpcDetectCaptivePortal);
+                        var brokerIPC = Manager.Broker.GetBrokerIPC();
+                        brokerIPC.WriteToPipe(ipcDetectCaptivePortalMsg);
+                    }
+                }
+
+                // If captive portal is detected for the current network, monitor internet connection to determine if user has logged in to the captive portal or changed networks
+                if (Manager.CaptivePortalDetector.CaptivePortalDetected && newStatus == Models.ConnectionState.Unprotected)
+                {
+                    if (!Manager.CaptivePortalDetector.MonitoringInternetConnection && !Manager.CaptivePortalDetector.CaptivePortalLoggedIn)
+                    {
+                        Manager.CaptivePortalDetector.MonitorInternetConnectivity();
+                    }
+                }
+                else if (Manager.CaptivePortalDetector.MonitoringInternetConnection)
+                {
+                    Manager.CaptivePortalDetector.StopMonitorInternetConnectivity();
+                }
+            }
         }
 
         private void UpdateRxTxUI(string newRxBytes, string newTxBytes)
