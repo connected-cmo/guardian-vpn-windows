@@ -226,7 +226,7 @@ namespace FirefoxPrivateNetwork.Network
                     {
                         connectedNetworks = newConnectedNetworks;
 
-                        if (ValidateNetworksIds(connectedNetworkIds) && ValidateNetworksIds(newConnectedNetworkIds))
+                        if (ValidateNetworkIds(connectedNetworkIds) && ValidateNetworkIds(newConnectedNetworkIds))
                         {
                             CaptivePortalDetected = false;
 
@@ -241,7 +241,7 @@ namespace FirefoxPrivateNetwork.Network
             });
         }
 
-        private bool ValidateNetworksIds(HashSet<Guid> networkIds)
+        private bool ValidateNetworkIds(HashSet<Guid> networkIds)
         {
             foreach (var id in networkIds)
             {
