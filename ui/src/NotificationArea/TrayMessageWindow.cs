@@ -3,6 +3,7 @@
 // </copyright>
 
 using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using FirefoxPrivateNetwork.Windows;
 
@@ -88,6 +89,12 @@ namespace FirefoxPrivateNetwork.NotificationArea
         /// <returns>Null pointer or the result of the default window procedure which ensures every message is processed.</returns>
         private static IntPtr TrayWndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam)
         {
+            Debug.WriteLine(lParam.ToString() + " - " + Windows.User32.NinBalloonUserClick.ToString() + " : " + msg.ToString());
+            if (lParam == new IntPtr(Windows.User32.NinBalloonUserClick))
+            {
+                Manager.TrayIcon.HandleNotificationClick(msg);
+            }
+
             switch (msg)
             {
                 case Windows.User32.WmDestroy:
@@ -105,7 +112,6 @@ namespace FirefoxPrivateNetwork.NotificationArea
                     }
 
                     return IntPtr.Zero;
-
                 default:
                     return User32.DefWindowProcW(hWnd, msg, wParam, lParam);
             }

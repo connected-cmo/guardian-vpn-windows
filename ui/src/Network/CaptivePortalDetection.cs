@@ -18,6 +18,7 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using FirefoxPrivateNetwork.NotificationArea;
 using Microsoft.WindowsAPICodePack.Net;
 
 namespace FirefoxPrivateNetwork.Network
@@ -82,9 +83,10 @@ namespace FirefoxPrivateNetwork.Network
 
                     // Send a windows notification if captive portal is detected.
                     Manager.TrayIcon.ShowNotification(
-                        Manager.TranslationService.GetString("windows-notification-captive-portal-title"),
-                        Manager.TranslationService.GetString("windows-notification-captive-portal-content"),
-                        NotificationArea.ToastIconType.Disconnected
+                        Manager.TranslationService.GetString("windows-notification-captive-portal-blocked-title"),
+                        Manager.TranslationService.GetString("windows-notification-captive-portal-blocked-content"),
+                        NotificationArea.ToastIconType.Disconnected,
+                        clickEvent: ToastClickEvent.Disconnect
                     );
                 }
             }
@@ -147,9 +149,10 @@ namespace FirefoxPrivateNetwork.Network
                         if (Manager.MainWindowViewModel.Status == Models.ConnectionState.Unprotected)
                         {
                             Manager.TrayIcon.ShowNotification(
-                            "Guest Wi-Fi network detected",
-                            "Turn on VPN to secure your device.",
-                            NotificationArea.ToastIconType.Disconnected
+                                Manager.TranslationService.GetString("windows-notification-captive-portal-detected-title"),
+                                Manager.TranslationService.GetString("windows-notification-captive-portal-detected-content", UI.Resources.Localization.TranslationService.Args("wifiName", connectedNetworks.First().Name)),
+                                NotificationArea.ToastIconType.Disconnected,
+                                clickEvent: ToastClickEvent.Connect
                             );
                         }
 
