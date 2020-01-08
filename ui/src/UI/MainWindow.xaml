@@ -55,7 +55,7 @@
                 <Grid.RenderTransform>
                     <TranslateTransform />
                 </Grid.RenderTransform>
-                <Frame x:Name="ViewFrame" NavigationUIVisibility="Hidden" ContentRendered="ViewFrame_ContentRendered" />
+                <Frame x:Name="ViewFrame" Focusable="False" NavigationUIVisibility="Hidden" ContentRendered="ViewFrame_ContentRendered" />
             </Grid>
         </Grid>
 
