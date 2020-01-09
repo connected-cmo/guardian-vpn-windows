@@ -4,6 +4,10 @@ application-description =
    A fast, secure and easy to use VPN 
    (Virtual Private Network).
 
+## Navigation
+navigation-close = Close
+navigation-back = Back
+
 ## Pages
 connection-page-title = Connection
 devices-page-title = My devices
