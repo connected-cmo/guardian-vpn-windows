@@ -157,12 +157,16 @@ namespace FirefoxPrivateNetwork.WireGuard
 
         private static void HandleIPCDetectCaptivePortal(IPC ipc)
         {
+            Debug.WriteLine("calling is captive portal task");
             var captivePortalDetectionTask = Network.CaptivePortalDetection.IsCaptivePortalActiveTask();
             captivePortalDetectionTask.ContinueWith(task =>
             {
-                var captivePortalDetectionReply = new IPCMessage(IPCCommand.IpcDetectCaptivePortalReply);
-                captivePortalDetectionReply.AddAttribute("detected", task.Result == Network.CaptivePortalDetection.ConnectivityStatus.CaptivePortalDetected ? "true" : "false");
-                ipc.WriteToPipe(captivePortalDetectionReply);
+                if (task.Result != Network.CaptivePortalDetection.ConnectivityStatus.ResolveHostFailed)
+                {
+                    var captivePortalDetectionReply = new IPCMessage(IPCCommand.IpcDetectCaptivePortalReply);
+                    captivePortalDetectionReply.AddAttribute("detected", task.Result == Network.CaptivePortalDetection.ConnectivityStatus.CaptivePortalDetected ? "true" : "false");
+                    ipc.WriteToPipe(captivePortalDetectionReply);
+                }
             });
         }
 

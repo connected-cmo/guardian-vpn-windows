@@ -28,6 +28,8 @@ namespace FirefoxPrivateNetwork.Network
     /// </summary>
     public class CaptivePortalDetection
     {
+        private static string captivePortalDetectionIp;
+        private static Task resolveCaptivePortalDetectionHostTask;
         private bool captivePortalDetected = false;
         private List<Microsoft.WindowsAPICodePack.Net.Network> connectedNetworks = new List<Microsoft.WindowsAPICodePack.Net.Network>();
         private CancellationTokenSource monitorInternetConnectivityTokenSource = new CancellationTokenSource();
@@ -41,6 +43,8 @@ namespace FirefoxPrivateNetwork.Network
         {
             // Add an event handler to reset the captive portal detection check when a network change is detected
             ConfigureNetworkAddressChangedHandler();
+
+            ResolveCaptivePortalDetectionHost();
         }
 
         /// <summary>
@@ -62,7 +66,17 @@ namespace FirefoxPrivateNetwork.Network
             /// There is internet connectivity available.
             /// </summary>
             HaveConnectivity,
+
+            /// <summary>
+            /// Failed to resolve DNS host.
+            /// </summary>
+            ResolveHostFailed,
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the captive portal host has been resolved or not.
+        /// </summary>
+        public static bool CaptivePortalHostResolved { get; set; } = false;
 
         /// <summary>
         /// Gets or sets a value indicating whether we have detected a captive portal network.
@@ -120,12 +134,45 @@ namespace FirefoxPrivateNetwork.Network
         /// <returns>A <see cref="Task"/> representing the asynchronous operation which returns a ConnectivityStatus value.</returns>
         public static Task<ConnectivityStatus> IsCaptivePortalActiveTask()
         {
+            Debug.WriteLine("inside is captive portal task");
+
             var testOutsideConnectivityTask = Task.Run(() =>
             {
-                return TestOutsideConnectivity(ProductConstants.CaptivePortalDetectionIP, ProductConstants.CaptivePortalDetectionHost, ProductConstants.CaptivePortalDetectionUrl, ProductConstants.CaptivePortalDetectionValidReplyContents);
+                if (CaptivePortalHostResolved && !string.IsNullOrEmpty(captivePortalDetectionIp))
+                {
+                    return TestOutsideConnectivity(captivePortalDetectionIp, ProductConstants.CaptivePortalDetectionHost, ProductConstants.CaptivePortalDetectionUrl, ProductConstants.CaptivePortalDetectionValidReplyContents);
+                }
+
+                return ConnectivityStatus.ResolveHostFailed;
+
             });
 
             return testOutsideConnectivityTask;
+        }
+
+        /// <summary>
+        /// Initiates a task that resolves the captive portal detection host.
+        /// </summary>
+        public static void ResolveCaptivePortalDetectionHost()
+        {
+            if (CaptivePortalHostResolved || (resolveCaptivePortalDetectionHostTask != null && resolveCaptivePortalDetectionHostTask.Status == TaskStatus.Running))
+            {
+                return;
+            }
+
+            resolveCaptivePortalDetectionHostTask = Task.Run(() =>
+            {
+                try
+                {
+                    captivePortalDetectionIp = Dns.GetHostEntry(ProductConstants.CaptivePortalDetectionHost).AddressList.First(addr => addr.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).ToString();
+                }
+                catch
+                {
+                    return;
+                }
+
+                CaptivePortalHostResolved = true;
+            });
         }
 
         /// <summary>
@@ -207,6 +254,8 @@ namespace FirefoxPrivateNetwork.Network
         {
             NetworkChange.NetworkAddressChanged += new NetworkAddressChangedEventHandler((sender, e) =>
             {
+                Debug.WriteLine("Network availability: " + NetworkInterface.GetIsNetworkAvailable().ToString());
+
                 var networks = NetworkListManager.GetNetworks(NetworkConnectivityLevels.Connected).GetEnumerator();
                 var newConnectedNetworks = new List<Microsoft.WindowsAPICodePack.Net.Network>();
                 while (networks.MoveNext())

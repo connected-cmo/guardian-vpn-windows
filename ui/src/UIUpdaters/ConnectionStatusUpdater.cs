@@ -200,6 +200,9 @@ namespace FirefoxPrivateNetwork.UIUpdaters
             // Check for a captive portal if the settings option is enabled
             if (Manager.Settings.Network.CaptivePortalAlert)
             {
+                // Attempt to resolve the captive portal detection host
+                Network.CaptivePortalDetection.ResolveCaptivePortalDetectionHost();
+
                 // Make sure to try and detect captive portals if connection stability is unstable/no signal
                 if (newStability == Models.ConnectionStability.NoSignal || newStability == Models.ConnectionStability.Unstable)
                 {
