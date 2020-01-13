@@ -201,15 +201,16 @@ namespace FirefoxPrivateNetwork.UIUpdaters
             if (Manager.Settings.Network.CaptivePortalAlert)
             {
                 // Attempt to resolve the captive portal detection host
-                Network.CaptivePortalDetection.ResolveCaptivePortalDetectionHost();
+                Manager.CaptivePortalDetector.ResolveCaptivePortalDetectionHost();
 
                 // Make sure to try and detect captive portals if connection stability is unstable/no signal
                 if (newStability == Models.ConnectionStability.NoSignal || newStability == Models.ConnectionStability.Unstable)
                 {
                     // Initiate captive portal check if not already detected for the current network address
-                    if (!Manager.CaptivePortalDetector.CaptivePortalDetected)
+                    if (!Manager.CaptivePortalDetector.CaptivePortalDetected && !string.IsNullOrEmpty(Manager.Settings.Network.CaptivePortalDetectionIp))
                     {
                         var ipcDetectCaptivePortalMsg = new IPCMessage(IPCCommand.IpcDetectCaptivePortal);
+                        ipcDetectCaptivePortalMsg.AddAttribute("ip", Manager.Settings.Network.CaptivePortalDetectionIp);
                         var brokerIPC = Manager.Broker.GetBrokerIPC();
                         brokerIPC.WriteToPipe(ipcDetectCaptivePortalMsg);
                     }

@@ -213,7 +213,7 @@ namespace FirefoxPrivateNetwork.NotificationArea
             {
                 clickEvent = (ToastClickEvent)msg;
             }
-            catch
+            catch (Exception)
             {
                 return;
             }
@@ -221,10 +221,14 @@ namespace FirefoxPrivateNetwork.NotificationArea
             switch (clickEvent)
             {
                 case ToastClickEvent.Connect:
+                    ShowMainWindow();
                     WireGuard.Connector.Connect();
                     break;
                 case ToastClickEvent.Disconnect:
                     WireGuard.Connector.Disconnect();
+                    break;
+                default:
+                    ShowMainWindow();
                     break;
             }
         }

@@ -14,10 +14,13 @@ using System.Linq;
 using System.Management;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Net.Security;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using FirefoxPrivateNetwork.NotificationArea;
 using Microsoft.WindowsAPICodePack.Net;
 
@@ -28,13 +31,14 @@ namespace FirefoxPrivateNetwork.Network
     /// </summary>
     public class CaptivePortalDetection
     {
-        private static string captivePortalDetectionIp;
-        private static Task resolveCaptivePortalDetectionHostTask;
+        private readonly TimeSpan postLoginNotificationGracePeriod = TimeSpan.FromSeconds(10);
+        private readonly TimeSpan monitorInternetConnectivityFrequency = TimeSpan.FromSeconds(10);
+        private readonly TimeSpan monitorInternetConnectivityTimeout = TimeSpan.FromMinutes(15);
+
+        private Task resolveCaptivePortalDetectionHostTask;
         private bool captivePortalDetected = false;
         private List<Microsoft.WindowsAPICodePack.Net.Network> connectedNetworks = new List<Microsoft.WindowsAPICodePack.Net.Network>();
         private CancellationTokenSource monitorInternetConnectivityTokenSource = new CancellationTokenSource();
-        private TimeSpan postLoginNotificationGracePeriod = TimeSpan.FromSeconds(10);
-        private TimeSpan monitorInternetConnectivityFrequency = TimeSpan.FromSeconds(10);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CaptivePortalDetection"/> class.
@@ -44,6 +48,7 @@ namespace FirefoxPrivateNetwork.Network
             // Add an event handler to reset the captive portal detection check when a network change is detected
             ConfigureNetworkAddressChangedHandler();
 
+            // Attempt to resolve the captive portal detection host to ip
             ResolveCaptivePortalDetectionHost();
         }
 
@@ -66,17 +71,17 @@ namespace FirefoxPrivateNetwork.Network
             /// There is internet connectivity available.
             /// </summary>
             HaveConnectivity,
-
-            /// <summary>
-            /// Failed to resolve DNS host.
-            /// </summary>
-            ResolveHostFailed,
         }
 
         /// <summary>
         /// Gets or sets a value indicating whether the captive portal host has been resolved or not.
         /// </summary>
-        public static bool CaptivePortalHostResolved { get; set; } = false;
+        public bool CaptivePortalHostResolved { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets the captive portal detection ip.
+        /// </summary>
+        public string CaptivePortalDetectionIp { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether we have detected a captive portal network.
@@ -131,20 +136,13 @@ namespace FirefoxPrivateNetwork.Network
         /// <summary>
         /// Checks whether we are located on a captive portal network.
         /// </summary>
+        /// <param name="ip">Captive portal detection ip.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation which returns a ConnectivityStatus value.</returns>
-        public static Task<ConnectivityStatus> IsCaptivePortalActiveTask()
+        public static Task<ConnectivityStatus> IsCaptivePortalActiveTask(string ip)
         {
-            Debug.WriteLine("inside is captive portal task");
-
             var testOutsideConnectivityTask = Task.Run(() =>
             {
-                if (CaptivePortalHostResolved && !string.IsNullOrEmpty(captivePortalDetectionIp))
-                {
-                    return TestOutsideConnectivity(captivePortalDetectionIp, ProductConstants.CaptivePortalDetectionHost, ProductConstants.CaptivePortalDetectionUrl, ProductConstants.CaptivePortalDetectionValidReplyContents);
-                }
-
-                return ConnectivityStatus.ResolveHostFailed;
-
+                return TestOutsideConnectivity(ip, ProductConstants.CaptivePortalDetectionHost, ProductConstants.CaptivePortalDetectionUrl, ProductConstants.CaptivePortalDetectionValidReplyContents);
             });
 
             return testOutsideConnectivityTask;
@@ -153,8 +151,9 @@ namespace FirefoxPrivateNetwork.Network
         /// <summary>
         /// Initiates a task that resolves the captive portal detection host.
         /// </summary>
-        public static void ResolveCaptivePortalDetectionHost()
+        public void ResolveCaptivePortalDetectionHost()
         {
+            // Do not initiate the task if host has already been resolved or the task is already running
             if (CaptivePortalHostResolved || (resolveCaptivePortalDetectionHostTask != null && resolveCaptivePortalDetectionHostTask.Status == TaskStatus.Running))
             {
                 return;
@@ -162,15 +161,30 @@ namespace FirefoxPrivateNetwork.Network
 
             resolveCaptivePortalDetectionHostTask = Task.Run(() =>
             {
+                string resolvedIp;
+
                 try
                 {
-                    captivePortalDetectionIp = Dns.GetHostEntry(ProductConstants.CaptivePortalDetectionHost).AddressList.First(addr => addr.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).ToString();
+                    // Attempt to resolve the captive portal detection host to ip
+                    resolvedIp = Dns.GetHostEntry(ProductConstants.CaptivePortalDetectionHost).AddressList.First(addr => addr.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).ToString();
                 }
-                catch
+                catch (Exception)
                 {
                     return;
                 }
 
+                // Validate the SSL certificate associated with the resolved ip
+                if (!ValidateCaptivePortalDetectionUrlCertificate(resolvedIp))
+                {
+                    return;
+                }
+
+                // Save the resolved ip to the settings conf file
+                var networkSettings = Manager.Settings.Network;
+                networkSettings.CaptivePortalDetectionIp = resolvedIp;
+                Manager.Settings.Network = networkSettings;
+
+                // Set the captive portal host resolved flag
                 CaptivePortalHostResolved = true;
             });
         }
@@ -178,21 +192,23 @@ namespace FirefoxPrivateNetwork.Network
         /// <summary>
         /// Initiates a task that monitors the current captive portal network for internet connectivity.
         /// </summary>
-        public void MonitorInternetConnectivity()
+        public async void MonitorInternetConnectivity()
         {
+            // Initiatilize a new task token source
             monitorInternetConnectivityTokenSource = new CancellationTokenSource();
 
-            Task.Run(() =>
+            var monitorInternetConnectivityTask = Task.Run(() =>
             {
-                Debug.WriteLine("Start monitoring internet connectivity");
                 MonitoringInternetConnection = true;
 
                 while (!monitorInternetConnectivityTokenSource.Token.IsCancellationRequested)
                 {
                     if (CheckInternetConnectivity())
                     {
+                        // Task delay for the post captive portal login grace period
                         monitorInternetConnectivityTokenSource.Token.WaitHandle.WaitOne(postLoginNotificationGracePeriod);
 
+                        // If the vpn is still turned off, send notification prompting the user to turn it on
                         if (Manager.MainWindowViewModel.Status == Models.ConnectionState.Unprotected)
                         {
                             Manager.TrayIcon.ShowNotification(
@@ -206,13 +222,18 @@ namespace FirefoxPrivateNetwork.Network
                         CaptivePortalLoggedIn = true;
                         MonitoringInternetConnection = false;
                         CaptivePortalDetected = false;
-                        Debug.WriteLine("Done monitoring internet connectivity.  Exiting task.");
                         return;
                     }
 
                     monitorInternetConnectivityTokenSource.Token.WaitHandle.WaitOne(monitorInternetConnectivityFrequency);
                 }
             }, monitorInternetConnectivityTokenSource.Token);
+
+            // Cancel the monitor internet connectivity task if the timeout is reached
+            if (await Task.WhenAny(monitorInternetConnectivityTask, Task.Delay(monitorInternetConnectivityTimeout)) != monitorInternetConnectivityTask)
+            {
+                StopMonitorInternetConnectivity();
+            }
         }
 
         /// <summary>
@@ -254,12 +275,12 @@ namespace FirefoxPrivateNetwork.Network
         {
             NetworkChange.NetworkAddressChanged += new NetworkAddressChangedEventHandler((sender, e) =>
             {
-                Debug.WriteLine("Network availability: " + NetworkInterface.GetIsNetworkAvailable().ToString());
-
+                // Enumerate the connected network interfaces
                 var networks = NetworkListManager.GetNetworks(NetworkConnectivityLevels.Connected).GetEnumerator();
                 var newConnectedNetworks = new List<Microsoft.WindowsAPICodePack.Net.Network>();
                 while (networks.MoveNext())
                 {
+                    // Ignore the tunnel network interface and include everything else
                     if (networks.Current.Name != ProductConstants.InternalAppName)
                     {
                         newConnectedNetworks.Add(networks.Current);
@@ -268,6 +289,7 @@ namespace FirefoxPrivateNetwork.Network
 
                 if (newConnectedNetworks.Count > 0)
                 {
+                    // Compare the network ids to confirm if a network change occured
                     var connectedNetworkIds = new HashSet<Guid>(connectedNetworks.Select(n => n.NetworkId).ToList());
                     var newConnectedNetworkIds = new HashSet<Guid>(newConnectedNetworks.Select(n => n.NetworkId).ToList());
 
@@ -275,15 +297,10 @@ namespace FirefoxPrivateNetwork.Network
                     {
                         connectedNetworks = newConnectedNetworks;
 
+                        // Validate the set of network ids, filtering out the networks that are obsolete
                         if (ValidateNetworkIds(connectedNetworkIds) && ValidateNetworkIds(newConnectedNetworkIds))
                         {
                             CaptivePortalDetected = false;
-
-                            Debug.WriteLine("Network change detected: ");
-                            foreach (var network in connectedNetworks)
-                            {
-                                Debug.WriteLine(network.Name + " : " + network.NetworkId);
-                            }
                         }
                     }
                 }
@@ -298,13 +315,39 @@ namespace FirefoxPrivateNetwork.Network
                 {
                     NetworkListManager.GetNetwork(id);
                 }
-                catch
+                catch (Exception)
                 {
                     return false;
                 }
             }
 
             return true;
+        }
+
+        private bool ValidateCaptivePortalDetectionUrlCertificate(string resolvedIp)
+        {
+            // Attempt to access the captive portal detection url with the resolved ip
+            var certificateValidationUri = new UriBuilder(Uri.UriSchemeHttps, resolvedIp).Uri;
+            HttpWebRequest request = WebRequest.CreateHttp(certificateValidationUri);
+            request.Host = ProductConstants.CaptivePortalDetectionHost;
+
+            // Configure the server certificate validation delegate
+            request.ServerCertificateValidationCallback += ServerCertificateValidationCallback;
+
+            try
+            {
+                request.GetResponse();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        private bool ServerCertificateValidationCallback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            return sslPolicyErrors == SslPolicyErrors.None;
         }
     }
 }

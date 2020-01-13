@@ -89,7 +89,6 @@ namespace FirefoxPrivateNetwork.NotificationArea
         /// <returns>Null pointer or the result of the default window procedure which ensures every message is processed.</returns>
         private static IntPtr TrayWndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam)
         {
-            Debug.WriteLine(lParam.ToString() + " - " + Windows.User32.NinBalloonUserClick.ToString() + " : " + msg.ToString());
             if (lParam == new IntPtr(Windows.User32.NinBalloonUserClick))
             {
                 Manager.TrayIcon.HandleNotificationClick(msg);

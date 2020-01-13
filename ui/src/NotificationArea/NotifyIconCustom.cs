@@ -64,7 +64,7 @@ namespace FirefoxPrivateNetwork.NotificationArea
         /// <summary>
         /// Do nothing when the toast is clicked.
         /// </summary>
-        None = 1331,
+        None = Windows.User32.WmApp + 1,
 
         /// <summary>
         /// Send connect command to the tunnel when the toast is clicked.

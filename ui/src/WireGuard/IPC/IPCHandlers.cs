@@ -7,6 +7,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using System.Windows;
 
 namespace FirefoxPrivateNetwork.WireGuard
 {
@@ -77,7 +78,7 @@ namespace FirefoxPrivateNetwork.WireGuard
                     break;
 
                 case IPCCommand.IpcDetectCaptivePortal:
-                    HandleIPCDetectCaptivePortal(ipc);
+                    HandleIPCDetectCaptivePortal(cmd, ipc);
                     break;
 
                 case IPCCommand.IpcRequestPid:
@@ -155,18 +156,15 @@ namespace FirefoxPrivateNetwork.WireGuard
             }
         }
 
-        private static void HandleIPCDetectCaptivePortal(IPC ipc)
+        private static void HandleIPCDetectCaptivePortal(IPCMessage cmd, IPC ipc)
         {
-            Debug.WriteLine("calling is captive portal task");
-            var captivePortalDetectionTask = Network.CaptivePortalDetection.IsCaptivePortalActiveTask();
+            var captivePortalDetectionTask = Network.CaptivePortalDetection.IsCaptivePortalActiveTask(cmd["ip"].FirstOrDefault());
+
             captivePortalDetectionTask.ContinueWith(task =>
             {
-                if (task.Result != Network.CaptivePortalDetection.ConnectivityStatus.ResolveHostFailed)
-                {
-                    var captivePortalDetectionReply = new IPCMessage(IPCCommand.IpcDetectCaptivePortalReply);
-                    captivePortalDetectionReply.AddAttribute("detected", task.Result == Network.CaptivePortalDetection.ConnectivityStatus.CaptivePortalDetected ? "true" : "false");
-                    ipc.WriteToPipe(captivePortalDetectionReply);
-                }
+                var captivePortalDetectionReply = new IPCMessage(IPCCommand.IpcDetectCaptivePortalReply);
+                captivePortalDetectionReply.AddAttribute("detected", task.Result == Network.CaptivePortalDetection.ConnectivityStatus.CaptivePortalDetected ? "true" : "false");
+                ipc.WriteToPipe(captivePortalDetectionReply);
             });
         }
 
