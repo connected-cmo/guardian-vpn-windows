@@ -49,7 +49,7 @@
 
                         <!-- Navigate settings button -->
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button Width="40" Height="40" Margin="8,0" local:ButtonExtensions.IconUri="{StaticResource 'settings'}" Click="NavigateSettings">
+                            <Button AutomationProperties.Name="{Binding Path=[settings-page-title]}" Width="40" Height="40" Margin="8,0" local:ButtonExtensions.IconUri="{StaticResource 'settings'}" Click="NavigateSettings">
                                 <Button.Style>
                                     <Style BasedOn="{StaticResource 'Icon'}" TargetType="{x:Type Button}">
                                         <Setter Property="Visibility" Value="Collapsed" />
@@ -62,7 +62,7 @@
                                 </Button.Style>
                             </Button>
 
-                            <Button Width="40" Height="40" Margin="8,0" local:ButtonExtensions.IconUri="{StaticResource 'settings-white'}" local:ButtonExtensions.HoverBackground="{StaticResource 'Grey/White 20'}" local:ButtonExtensions.PressedBackground="{StaticResource 'Grey/White 40'}" Click="NavigateSettings">
+                            <Button AutomationProperties.Name="{Binding Path=[settings-page-title]}" Width="40" Height="40" Margin="8,0" local:ButtonExtensions.IconUri="{StaticResource 'settings-white'}" local:ButtonExtensions.HoverBackground="{StaticResource 'Grey/White 20'}" local:ButtonExtensions.PressedBackground="{StaticResource 'Grey/White 40'}" Click="NavigateSettings">
                                 <Button.Style>
                                     <Style BasedOn="{StaticResource 'Icon'}" TargetType="{x:Type Button}">
                                         <Setter Property="Visibility" Value="Visible" />

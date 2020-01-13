@@ -10,6 +10,7 @@
              d:DesignHeight="40" d:DesignWidth="344" Width="Auto" Height="40" Margin="8,0">
     <Button.Style>
             <Style>
+                <Setter Property="AutomationProperties.Name" Value="{Binding Path=Title, RelativeSource={RelativeSource Self}}"/>
                 <Setter Property="Button.Background" Value="Transparent"/>
                 <Setter Property="Button.FocusVisualStyle" Value="{x:Null}"/>
             </Style>
@@ -34,6 +35,9 @@
             <ControlTemplate.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Cursor" Value="Hand" />
+                    <Setter Property="Background" Value="{DynamicResource 'Grey/Grey 10'}" />
+                </Trigger>
+                <Trigger Property="Button.IsFocused" Value="True">
                     <Setter Property="Background" Value="{DynamicResource 'Grey/Grey 10'}" />
                 </Trigger>
                 <Trigger Property="Button.IsPressed" Value="True">
