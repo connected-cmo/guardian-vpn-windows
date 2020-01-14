@@ -95,7 +95,7 @@
 
                 <!-- VPN toggle -->
                 <Grid HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="4" Grid.Column="0">
-                    <uc:VPNToggle x:Name="Toggle" Margin="0,24,0,0" EnableWhiteSwitchBorder="True" Status="{Binding TunnelStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, NotifyOnTargetUpdated=True}" TargetUpdated="Toggle_TargetUpdated"/>
+                    <uc:VPNToggle x:Name="Toggle" AutomationProperties.Name="{Binding Path=[settings-page-title]}" Margin="0,24,0,0" EnableWhiteSwitchBorder="True" Status="{Binding TunnelStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, NotifyOnTargetUpdated=True}" TargetUpdated="Toggle_TargetUpdated"/>
                 </Grid>
             </Grid>
         </Grid>

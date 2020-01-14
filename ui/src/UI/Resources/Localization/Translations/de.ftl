@@ -103,6 +103,7 @@ devices-limit-reached-title = Gerätelimit erreicht
 devices-limit-reached-content = Limit erreicht. Um den VPN auf diesem Gerät zu installieren, entferne zunächst ein andere.
 devices-remove-popup-title = Gerät entfernen?
 devices-remove-popup-content = Bitte bestätige das Entfernen von {$deviceName}.
+devices-remove = Gerät entfernen
 
 ## Popup
 popup-cancel-button-text = Abbrechen
