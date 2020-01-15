@@ -46,7 +46,7 @@
                             <Border x:Name="ToggleContainer" Grid.Row="0" CornerRadius="4">
                                 <Grid>
                                     <ContentPresenter RecognizesAccessKey="True" ContentSource="Header" Margin="40,0,0,0" />
-                                    <ToggleButton Template="{DynamicResource ExpanderToggleTemplate}" Background="{TemplateBinding Background}" IsChecked="{Binding Path=IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" FocusVisualStyle="{x:Null}" OverridesDefaultStyle="True"/>
+                                    <ToggleButton AutomationProperties.Name="{Binding Path=DataContext.ServerListSelectedItem.Country, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:ConnectionView}}}" Template="{DynamicResource ExpanderToggleTemplate}" Background="{TemplateBinding Background}" IsChecked="{Binding Path=IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" FocusVisualStyle="{x:Null}" OverridesDefaultStyle="True"/>
                                 </Grid>
 
                                 <Border.Style>
@@ -96,7 +96,7 @@
                 <DockPanel VerticalAlignment="Center" Width="360">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                         <!-- Navigate back button -->
-                        <Button Style="{StaticResource 'Icon'}" Width="40" Height="40" Margin="8,0,8,0" VerticalAlignment="Center" local:ButtonExtensions.IconUri="{StaticResource 'back'}" Click="NavigateMain"/>
+                        <Button AutomationProperties.Name="{Binding Path=[navigation-back]}" Style="{StaticResource 'Icon'}" Width="40" Height="40" Margin="8,0,8,0" VerticalAlignment="Center" local:ButtonExtensions.IconUri="{StaticResource 'back'}" Click="NavigateMain"/>
                         
                         <!-- Header bar text -->
                         <TextBlock VerticalAlignment="Center" Margin="0,17,0,16">
@@ -134,7 +134,7 @@
         <!-- Country servers list -->
         <Grid HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="1" Grid.Column="0">
             <ScrollViewer Width="360" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                <ListView x:Name="CountryServerList"  VerticalAlignment="Top" ItemsSource="{Binding CountryServerList, UpdateSourceTrigger=Explicit}" KeyboardNavigation.TabNavigation="Continue">
+                <ListView x:Name="CountryServerList"  VerticalAlignment="Top" ItemsSource="{Binding CountryServerList, UpdateSourceTrigger=Explicit}" Focusable="False" KeyboardNavigation.TabNavigation="Continue">
                     <ListView.Template>
                         <ControlTemplate>
                             <ItemsPresenter />
@@ -160,7 +160,7 @@
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <!-- Expander for country -->
-                            <Expander HorizontalAlignment="Stretch" VerticalAlignment="Top">
+                            <Expander HorizontalAlignment="Stretch" VerticalAlignment="Top" Focusable="False">
                                 <Expander.Header>
                                     <StackPanel Orientation="Horizontal">
                                         <Image Source="{Binding CountryFlag}" VerticalAlignment="Center" Width="20" Height="15" Margin="10,0,10,0"/>
@@ -186,7 +186,7 @@
 
                                 <!-- Expander content  -->
                                 <!-- Cities servers list -->
-                                <ListView x:Name="CityServerList" ItemsSource="{Binding Servers, UpdateSourceTrigger=Explicit}" KeyboardNavigation.TabNavigation="Continue">
+                                <ListView x:Name="CityServerList" ItemsSource="{Binding Servers, UpdateSourceTrigger=Explicit}" Focusable="False" KeyboardNavigation.TabNavigation="Continue">
                                     <ListView.Template>
                                         <ControlTemplate>
                                             <ItemsPresenter />

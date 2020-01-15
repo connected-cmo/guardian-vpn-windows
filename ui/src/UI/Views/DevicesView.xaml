@@ -95,7 +95,7 @@
                     </TextBlock>
 
                     <!-- Devices list -->
-                    <ListView x:Name="DeviceList" AutomationProperties.Name="{Binding Path=[devices-page-title]}" ItemsSource="{Binding DeviceList, UpdateSourceTrigger=Explicit}" VerticalAlignment="Top" BorderThickness="0" Padding="-1" KeyboardNavigation.TabNavigation="Continue">
+                    <ListView x:Name="DeviceList" ItemsSource="{Binding DeviceList, UpdateSourceTrigger=Explicit}" VerticalAlignment="Top" BorderThickness="0" Padding="-1" Focusable="False" KeyboardNavigation.TabNavigation="Continue">
                         <ListView.Template>
                             <ControlTemplate>
                                 <ItemsPresenter />
