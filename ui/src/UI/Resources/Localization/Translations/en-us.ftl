@@ -7,6 +7,7 @@ application-description =
 ## Navigation
 navigation-close = Close
 navigation-back = Back
+navigation-open-link = Open link
 
 ## Pages
 connection-page-title = Connection
