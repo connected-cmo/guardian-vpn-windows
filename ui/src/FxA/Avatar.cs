@@ -23,6 +23,7 @@ namespace FirefoxPrivateNetwork.FxA
     public class Avatar
     {
         private readonly TimeSpan maxAvatarDownloadTime = TimeSpan.FromSeconds(30);
+        private Task<BitmapImage> downloadTask;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Avatar"/> class.
@@ -49,6 +50,12 @@ namespace FirefoxPrivateNetwork.FxA
         /// <returns>The avatar download task, if applicable.</returns>
         public Task<BitmapImage> InitializeCache(string avatarUrl = null)
         {
+            // Return the avatar download task if already running
+            if (downloadTask != null && downloadTask.Status.Equals(TaskStatus.Running))
+            {
+                return downloadTask;
+            }
+
             // Initialize the cache to the default avatar image
             Cache = MemoryCache.Default;
             CacheItemPolicy policy = new CacheItemPolicy();
@@ -60,18 +67,18 @@ namespace FirefoxPrivateNetwork.FxA
             }
 
             // Attempt to retreive the avatar image if a download URL is provided
-            var downloadTask = Task.Run(() =>
+            downloadTask = Task.Run(() =>
             {
                 var image = GetAvatarImageWithURL(avatarUrl);
 
                 if (image != null)
                 {
-                    DefaultImage = false;
                     Application.Current.Dispatcher.Invoke(() =>
                     {
                         Cache.Set("avatarImage", image, policy);
                     });
 
+                    DefaultImage = false;
                     return image;
                 }
 

@@ -96,6 +96,7 @@ namespace FirefoxPrivateNetwork.UI.Components
             if (Manager.Account.Config.FxALogin.User.Avatar != null && Manager.Account.Avatar.DefaultImage == true)
             {
                 var avatarDownloadTask = Manager.Account.Avatar.InitializeCache(avatarUrl: Manager.Account.Config.FxALogin.User.Avatar);
+
                 if (avatarDownloadTask != null)
                 {
                     avatarDownloadTask.ContinueWith(task =>
@@ -105,6 +106,8 @@ namespace FirefoxPrivateNetwork.UI.Components
                             Application.Current.Dispatcher.Invoke(() =>
                             {
                                 AvatarImage = task.Result;
+                                ImageBrush profileImage = (ImageBrush)ProfileImageButton.Template.FindName("ProfileImage", ProfileImageButton);
+                                profileImage.ImageSource = AvatarImage;
                             });
                         }
                     });
