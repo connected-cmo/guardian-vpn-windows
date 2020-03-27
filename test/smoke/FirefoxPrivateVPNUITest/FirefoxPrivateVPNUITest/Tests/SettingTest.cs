@@ -7,13 +7,9 @@ namespace FirefoxPrivateVPNUITest
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Net;
     using System.Text.RegularExpressions;
-    using System.Threading;
     using FirefoxPrivateVPNUITest.Screens;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using OpenQA.Selenium.Appium.Windows;
-    using RestSharp;
 
     /// <summary>
     /// This is to test setting screen.
@@ -55,11 +51,7 @@ namespace FirefoxPrivateVPNUITest
             this.browser = new BrowserSession();
             this.vpnClient = new FirefoxPrivateVPNSession();
             this.desktop = new DesktopSession();
-
-            // Resize browser to make vpn client and browser are not overlapped
-            var vpnClientPosition = this.vpnClient.Session.Manage().Window.Position;
-            var vpnClientSize = this.vpnClient.Session.Manage().Window.Size;
-            this.browser.SetWindowPosition(vpnClientPosition.X + vpnClientSize.Width, 0);
+            Utils.RearrangeWindows(this.vpnClient, this.browser);
         }
 
         /// <summary>
@@ -169,7 +161,7 @@ namespace FirefoxPrivateVPNUITest
             Assert.AreEqual("Enable IPv6", networkSettingsScreen.GetEnableIPv6CheckBoxText());
             Assert.AreEqual("Push the internet forward with the latest version of the Internet Protocol", networkSettingsScreen.GetEnableIPv6Description());
             Assert.IsFalse(networkSettingsScreen.IsEnableIPv6DisabledMessageDisplayed());
-            Assert.AreEqual("Allow access to your local network", networkSettingsScreen.GetAllowAccessText());
+            Assert.AreEqual("Local network access", networkSettingsScreen.GetAllowAccessText());
             Assert.AreEqual("Access printers, streaming sticks and all other devices on your local network", networkSettingsScreen.GetAllowAccessDescription());
             Assert.IsFalse(networkSettingsScreen.IsAllowAccessDisabledMessageDisplayed());
 
