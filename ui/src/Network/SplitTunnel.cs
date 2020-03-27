@@ -90,8 +90,6 @@ namespace FirefoxPrivateNetwork.Network
             MessageBox.Show("Callout was found.  Name: " + callout.displayData.name + " Description: " + callout.displayData.description);
 
             // Get application Id from filename
-            //var ie_86 = @"C:\Program Files (x86)\Internet Explorer\iexplore.exe";
-            //var ie_64 = @"C:\Program Files\Internet Explorer\iexplore.exe";
             var chrome_86 = @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe";
 
             IntPtr appId = IntPtr.Zero;
@@ -105,7 +103,7 @@ namespace FirefoxPrivateNetwork.Network
             var filterCondition1 = new FwpmFilterCondition
             {
                 fieldKey = FWPM_CONDITION_ALE_APP_ID,
-                matchType = FwpMatchType.FWP_MATCH_NOT_EQUAL,
+                matchType = FwpMatchType.FWP_MATCH_EQUAL,
                 conditionValue = new FwpConditionValue
                 {
                     type = FwpDataType.FWP_BYTE_BLOB_TYPE,
